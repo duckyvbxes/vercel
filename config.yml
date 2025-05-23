@@ -4,10 +4,10 @@
 # Discord: https://discord.gg/plexdev
 # Documentation: https://docs.plexdevelopment.net/
 # ===========================================================================
-MongoURI: "CONNECTION_URL"
+MongoURI: "mongodb+srv://ducky:UagcTQMOTIPpJVqI@la.zfiea41.mongodb.net/ducky?retryWrites=true&w=majority"
 DebugMode: true
 
-OwnerID: ["DISCORD_USER_ID", "DISCORD_USER_ID"] # The Discord User ID's that will have full access, you can add multiple
+OwnerID: ["1362958443866230879", "1263179104644108352", "1099374237946482719", "6750589435962983400", "1034873611091181699", "809730460703784991", "722008765053796383", "1179131533253152903"] # The Discord User ID's that will have full access, you can add multiple
 
 # ===========================================================================
 # DISCORD BOT
@@ -15,8 +15,8 @@ OwnerID: ["DISCORD_USER_ID", "DISCORD_USER_ID"] # The Discord User ID's that wil
 # ===========================================================================
 # The discord bot is mostly used for logs, automatically giving roles, etc.
 
-Token: "BOT_TOKEN" # If you don't know how to get it, Look at our docs: https://docs.plexdevelopment.net {{TIME}}
-GuildID: "GUILD_ID" # This is your discord server's ID, Right click on your server icon and copy ID
+Token: "MTM0MjYyMzQ0OTkwNjAyNDUyOA.GFafU3.fdZVukvNp9FPzrsYnPShdyCp1WT8wQ34Gpzobs" # If you don't know how to get it, Look at our docs: https://docs.plexdevelopment.net {{TIME}}
+GuildID: "1279442669210304563" # This is your discord server's ID, Right click on your server icon and copy ID
 autoJoinUsers: true # Should users automatically get added to your Discord server when they login?
 # ===========================================================================
 # DISCORD OAUTH2
@@ -24,9 +24,9 @@ autoJoinUsers: true # Should users automatically get added to your Discord serve
 # ===========================================================================
 # Discord OAuth2 credentials, get these from the Discord Developer Portal: https://discord.com/developers/applications
 # Note: MAKE SURE TO REPLACE LOCALHOST:3000 WITH THE DOMAIN OR IP YOU ACCESS THE WEBSITE WITH!
-clientID: "CLIENT_ID"
-clientSecret: "CLIENT_SECRET"
-callbackURL: "http://localhost:3000/auth/discord/callback" # Create a Redirect URL in the Developer Portal and set it to this callback URL
+clientID: "1342623449906024528"
+clientSecret: "ljCcGdJjiNWkZiHx9pZM35WHHgMhJRUX"
+callbackURL: "http://185.150.189.3:21089/auth/discord/callback" # Create a Redirect URL in the Developer Portal and set it to this callback URL
 
 secretKey: "uNLmkcssGY3as1k8s0mj" # This can be anything, We recommend using this https://www.dashlane.com/features/password-generator with at least 20 characters, ({{USERNAME}})
 
@@ -38,5 +38,5 @@ SessionExpires: "7d" # How long should a session be valid
 # WEBSERVER
 # You must not leave them as blank!
 # ===========================================================================
-baseURL: "http://localhost:3000" # The exact URL you use to access the website, No trailing slashes
-Port: 3000 # The port you want the webserver to be ran on
+baseURL: "http://185.150.189.3:21089" # The exact URL you use to access the website, No trailing slashes
+Port: 21089 # The port you want the webserver to be ran on
