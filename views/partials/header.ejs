@@ -1,0 +1,295 @@
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  </head>
+
+<style>
+  html,
+  body {
+    font-family: '<%= settings.websiteFont || 'Rubik' %>', sans-serif;
+  }
+
+:root {
+        --primary-color-header: #0f0f13;
+        --text-color-header: #94a3b8;
+    }
+
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--accent-color);
+        border-radius: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: var(--primary-color-header);
+    }
+
+    .navbar.is-dark {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 1rem;
+    }
+
+    .custom-navbar {
+        background-color: var(--primary-color-header);
+        border-bottom: 2px solid var(--accent-color);
+        padding: 0.5rem 1.5rem;
+    }
+
+    .custom-navbar .navbar-brand {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-navbar .navbar-end .navbar-item {
+        background-color: transparent;
+        color: var(--text-color-header);
+        margin-right: 10px;
+        transition: color 0.3s ease;
+    }
+
+    .custom-navbar .navbar-end .navbar-item:hover {
+        color: var(--accent-color);
+    }
+
+    .navbar-menu {
+        background-color: var(--primary-color-header);
+    }
+
+    .navbar-menu .navbar-item {
+        color: var(--text-color-header);
+        transition: all 0.3s ease;
+        padding: 0.7rem 1rem;
+        border-radius: 6px;
+        margin: 0 0.2rem;
+    }
+
+    .navbar-menu .navbar-item:hover {
+        color: var(--primary-color-header);
+    }
+
+    .navbar-burger {
+        color: var(--text-color-header);
+    }
+
+    .navbar-burger:hover {
+        color: var(--accent-color);
+    }
+
+    .navbar-burger.is-active {
+        color: var(--accent-color);
+    }
+
+    .navbar-logo {
+        max-width: 312px;
+        height: auto;
+    }
+
+    .avatar {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        margin-right: 8px;
+    }
+
+    .navbar-item .icon {
+        margin-right: 0.5rem;
+        color: var(--accent-color);
+    }
+
+    .navbar-dropdown {
+        display: none;
+        position: absolute;
+        background-color: var(--primary-color-header);
+        border-radius: 6px;
+        padding: 10px 0;
+        margin-top: 5px;
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
+
+    .navbar-item.has-dropdown:hover .navbar-dropdown {
+        display: block;
+    }
+
+    .navbar-dropdown .navbar-item,
+    .navbar-dropdown .navbar-item:hover,
+    .navbar-dropdown .navbar-item:focus,
+    .navbar-dropdown .navbar-item:active {
+        background-color: var(--primary-color-header) !important;
+        color: var(--text-color-header) !important;
+        box-shadow: none !important;
+        outline: none !important;
+        border: none !important;
+        transition: color 0.3s ease;
+    }
+
+    .navbar-dropdown .navbar-item:hover {
+        color: var(--accent-color) !important;
+    }
+
+    .navbar-link {
+        color: var(--text-color-header) !important;
+        background-color: var(--primary-color-header) !important;
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    .navbar-link:hover {
+        color: var(--accent-color) !important;
+        background-color: var(--primary-color-header) !important;
+        text-decoration: none;
+    }
+
+    .navbar-item.has-dropdown .navbar-link:hover {
+        background-color: var(--primary-color-header) !important;
+        color: var(--accent-color) !important;
+    }
+
+    .navbar-dropdown .navbar-item:focus {
+        outline: none;
+    }
+
+    .navbar-dropdown .navbar-item .icon {
+        margin-right: 8px;
+    }
+
+    .navbar-item.has-dropdown {
+        position: relative;
+    }
+
+    .navbar-end {
+        position: relative;
+    }
+
+    .navbar-menu .navbar-dropdown {
+        background-color: var(--primary-color-header);
+        border-radius: 6px;
+        padding: 10px 0;
+        margin-top: -2px;
+    }
+
+    .navbar-item .icon {
+    margin-right: 0.2rem !important;
+    display: inline-flex;
+    align-items: center;
+}
+
+.navbar-link::after {
+    border-color: var(--accent-color) !important;
+}
+
+.login-button {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    color: var(--accent-color) !important;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem !important;
+    margin-left: 0.5rem;
+    box-shadow: 0 2px 4px rgba(var(--accent-color-rgb), 0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.15);
+    box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.login-button .icon {
+    color: var(--accent-color) !important;
+}
+
+</style>
+
+<nav class="navbar custom-navbar">
+    <div class="navbar-brand">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarMenu">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarMenu" class="navbar-menu">
+        <div class="navbar-end">
+            <a class="navbar-item" href="/">
+                <span class="icon">
+                    <i class="fas fa-home"></i>
+                </span>
+                Dashboard
+            </a>
+            <a class="navbar-item" href="/suggestions">
+                <span class="icon">
+                    <i class="fas fa-lightbulb"></i>
+                </span>
+                Suggestions
+            </a>
+            <a class="navbar-item" href="/bugs">
+                <span class="icon">
+                    <i class="fas fa-bug"></i>
+                </span>
+                Bug Reports
+            </a>
+            <% if (user) { %>
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link" style="color: var(--text-color-header);">
+                        <% if (user.avatar) { %>
+                            <img src="https://cdn.discordapp.com/avatars/<%= user.id %>/<%= user.avatar %>.webp?size=240" alt="Avatar" class="avatar">
+                        <% } else { %>
+                            <span class="icon">
+                                <i class="fas fa-user-circle"></i>
+                            </span>
+                        <% } %>
+                        Logged in as <%= user.username %>
+                    </a>
+        
+                    <div class="navbar-dropdown">
+                        <% if (isStaff) { %>
+                            <a class="navbar-item" href="/staff/overview">
+                                <span class="icon">
+                                    <i class="fas fa-cogs"></i>
+                                </span>
+                                Staff Panel
+                            </a>
+                        <% } %>
+        
+                        <a class="navbar-item" href="/logout">
+                            <span class="icon">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            <% } else { %>
+                <a class="navbar-item login-button" href="/login">
+                    <span class="icon">
+                        <i class="fab fa-discord"></i>
+                    </span>
+                    Login with Discord
+                </a>
+            <% } %>
+        </div>
+        </div>
+    </div>
+</nav>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        if (navbarBurgers.length > 0) {
+            navbarBurgers.forEach(el => {
+                el.addEventListener('click', () => {
+                    const target = el.dataset.target;
+                    const $target = document.getElementById(target);
+                    el.classList.toggle('is-active');
+                    $target.classList.toggle('is-active');
+                });
+            });
+        }
+    });
+</script>

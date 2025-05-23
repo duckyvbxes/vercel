@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= settings.name %> - <%= submission.title %></title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="<%= settings.favicon %>">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= config.baseURL %>/submissions/<%= submission.urlID %>">
+  <meta property="og:title" content="<%= submission.title %>">
+  <meta property="og:description" content="<%= submission.type.charAt(0).toUpperCase() + submission.type.slice(1) %> by <%= submission.username %> • <%= submission.content.length > 150 ? submission.content.substring(0, 147) + '...' : submission.content %>">
+  <meta property="theme-color" content="<%= settings.accentColor %>">
+
+  <style>
+    :root {
+      --accent-color: <%=accentColorHex %>;
+      --accent-color-rgb: <%=accentColorRgb %>;
+      --bg-dark: #0a0a0f;
+      --card-bg: #151520;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      background: radial-gradient(circle at top left, rgba(var(--accent-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.15) 50%, rgba(var(--accent-color-rgb), 0.1) 100%), #0f0f13;
+      color: var(--text-secondary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      flex: 1;
+    }
+
+    .submission-container {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .submission-header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    .submission-type,
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .type-suggestion {
+      background-color: rgba(var(--accent-color-rgb), 0.15);
+      color: var(--accent-color);
+    }
+
+    .type-bug {
+      background-color: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
+
+    .submission-title {
+      color: var(--text-primary);
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .submission-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .meta-item i {
+      color: var(--accent-color);
+    }
+
+    .category-tag {
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      color: var(--accent-color);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .category-tag:hover {
+      background-color: rgba(var(--accent-color-rgb), 0.2);
+    }
+
+    .status-tag {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .status-pending {
+      background-color: rgba(255, 171, 0, 0.15);
+      color: #ffab00;
+    }
+
+    .status-investigating {
+      background-color: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+    }
+
+    .status-resolved {
+      background-color: rgba(0, 200, 83, 0.15);
+      color: #00c853;
+    }
+
+    .status-approved {
+      background-color: rgba(0, 200, 83, 0.15);
+      color: #00c853;
+    }
+
+    .status-implemented {
+      background-color: rgba(var(--accent-color-rgb), 0.15);
+      color: var(--accent-color);
+    }
+
+    .status-rejected {
+      background-color: rgba(244, 67, 54, 0.15);
+      color: #f44336;
+    }
+
+    .submission-content {
+      color: #b4b4b4;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .image-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .gallery-image {
+      border-radius: 12px;
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid var(--border-color);
+    }
+
+    .gallery-image:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .votes-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .vote-button {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .vote-button {
+      cursor: pointer;
+    }
+
+    .vote-button[data-vote="up"]:hover {
+      border-color: #00c853;
+      color: #00c853;
+      transform: translateY(-2px);
+    }
+
+    .vote-button[data-vote="down"]:hover {
+      border-color: #f44336;
+      color: #f44336;
+      transform: translateY(-2px);
+    }
+
+    .vote-button.voted-up {
+      background-color: #00c853;
+      color: white;
+      border-color: #00c853;
+      cursor: not-allowed;
+    }
+
+    .vote-button.voted-down {
+      background-color: #f44336;
+      color: white;
+      border-color: #f44336;
+      cursor: not-allowed;
+    }
+
+    .vote-button.other-voted {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .vote-button.other-voted:hover {
+      transform: none;
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+    }
+
+    .comments-section {
+      margin-top: 3rem;
+    }
+
+    .comment-form {
+      margin-bottom: 2.5rem;
+    }
+
+    .comment-input {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 12px;
+      padding: 1.25rem;
+      width: 100%;
+      margin-bottom: 1rem;
+      resize: vertical;
+      min-height: 120px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .comment-input:focus {
+      border-color: var(--accent-color);
+      outline: none;
+    }
+
+    .submit-button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .submit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.3);
+    }
+
+    .comment-card {
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: transform 0.2s;
+      position: relative;
+    }
+
+    .comment-card:hover {
+      transform: translateX(4px);
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .comment-author {
+      color: var(--accent-color);
+      font-weight: 500;
+    }
+
+    .comment-time {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .comment-content {
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+
+      .header-badges {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .badge-group {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .staff-actions-button {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+      }
+
+      .submission-type,
+      .status-tag {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .submission-container {
+        padding: 1.5rem;
+      }
+
+      .submission-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .votes-container {
+        flex-wrap: wrap;
+      }
+
+      .gallery-image {
+        height: 180px;
+      }
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      border: 2px solid rgba(var(--accent-color-rgb), 0.5);
+    }
+
+    .comment-author {
+      display: flex;
+      align-items: center;
+    }
+
+    .comment-input-container {
+      position: relative;
+    }
+
+    .comment-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+
+    .delete-comment {
+      color: #f44336;
+      background: none;
+      border: none;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: all 0.2s;
+    }
+
+    .delete-comment:hover {
+      opacity: 1;
+    }
+
+    .staff-actions {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .staff-actions-button {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+      border: 1px solid #ffc107;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+
+    .staff-actions-button:hover {
+      background-color: #ffc107;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+      cursor: pointer;
+    }
+
+    .modal-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 600px;
+      width: 100%;
+      color: var(--text-primary);
+    }
+
+    .modal-card-head {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      padding: 1.25rem;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .modal-card-title {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .modal-card-body {
+      background-color: var(--card-bg);
+      padding: 1.5rem;
+    }
+
+    .modal-card-foot {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid var(--border-color);
+      padding: 1.25rem;
+      border-radius: 0 0 12px 12px;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .modal-input {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      width: 100%;
+      font-size: 1rem;
+    }
+
+    .modal-input:focus {
+      border-color: var(--accent-color);
+      outline: none;
+    }
+
+    .modal-select {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+    }
+
+    .modal-select option {
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+    }
+
+    .modal-cancel-button {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .modal-cancel-button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+    }
+
+    .submission-content pre {
+      white-space: pre-wrap;
+      color: inherit;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      background: none;
+      padding: 0;
+    }
+
+    .cooldown-message {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      color: var(--accent-color);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .cooldown-message::before {
+      content: "";
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .submit-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .header-badges {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .badge-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .delete-button {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+      border: 1px solid #f44336;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .delete-button:hover {
+      background-color: #f44336;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-bottom: 1.5rem;
+    }
+
+    .back-button:hover {
+      transform: translateX(-4px);
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    .back-button i {
+      transition: transform 0.2s;
+    }
+
+    .back-button:hover i {
+      transform: translateX(-2px);
+    }
+
+    .staff-info {
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .staff-info-item {
+      display: flex;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .staff-info-label {
+      color: var(--accent-color);
+      font-weight: 500;
+    }
+
+    .user-id {
+      opacity: 0.7;
+      font-family: monospace;
+    }
+
+    strong {
+      color: var(--accent-color);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('partials/header', { user: user }) %>
+
+  <div class="main-content">
+    <section class="section">
+      <div class="container">
+
+        <a href="<%= submission.type === 'suggestion' ? '/suggestions' : '/bugs' %>" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+          Back to <%= submission.type === 'suggestion' ? 'Suggestions' : 'Bugs' %>
+        </a>
+
+        <div class="submission-container">
+          <div class="submission-header">
+            <div class="header-badges">
+              <div class="badge-group">
+                <div class="submission-type type-<%= submission.type %>">
+                  <i class="fas fa-<%= submission.type === 'bug' ? 'bug' : 'lightbulb' %>"></i>
+                  <%= submission.type %>
+                </div>
+
+                <span class="status-tag status-<%= submission.status %>">
+                  <i class="fas fa-circle"></i>
+                  <%= submission.status.charAt(0).toUpperCase() + submission.status.slice(1) %>
+                </span>
+              </div>
+
+              <% if (isStaff) { %>
+              <button class="staff-actions-button" onclick="openStaffModal()">
+                <i class="fas fa-shield-alt"></i>
+                Staff Actions
+              </button>
+              <% } %>
+            </div>
+            <h1 class="submission-title"><%= submission.title %></h1>
+            <div class="submission-meta">
+              <span class="meta-item">
+                <img src="<%= submission.avatar %>" alt="Author" class="user-avatar">
+                <%= submission.username %>
+              </span>
+              <span class="meta-item">
+                <i class="fas fa-clock"></i>
+                <%= timeAgo(submission.createdAt) %>
+              </span>
+              <span class="category-tag">
+                <i class="fas fa-tag"></i>
+                <%= submission.category.name %>
+              </span>
+            </div>
+          </div>
+
+          <div class="submission-content">
+            <pre><%= submission.content %></pre>
+          </div>
+
+          <% if (submission.images && submission.images.length > 0) { %>
+          <div class="image-gallery">
+            <% submission.images.forEach(image => { %>
+            <img src="<%= image %>" alt="Submission image" class="gallery-image">
+            <% }); %>
+          </div>
+          <% } %>
+
+          <% if (submission.type === 'suggestion') { %>
+          <div class="votes-container">
+            <button class="vote-button" data-vote="up">
+              <i class="fas fa-arrow-up"></i>
+              <span><%= submission.upvotes %></span>
+            </button>
+            <button class="vote-button" data-vote="down">
+              <i class="fas fa-arrow-down"></i>
+              <span><%= submission.downvotes %></span>
+            </button>
+          </div>
+          <% } %>
+
+          <% if (isStaff) { %>
+          <div class="modal" id="staffModal">
+            <div class="modal-background" onclick="closeStaffModal()"></div>
+            <div class="modal-card">
+              <header class="modal-card-head">
+                <p class="modal-card-title">Edit Submission</p>
+                <button class="delete" aria-label="close" onclick="closeStaffModal()"></button>
+              </header>
+
+              <section class="modal-card-body">
+                <div class="staff-info">
+                  <div class="staff-info-item">
+                    <span class="staff-info-label">Author:</span>
+                    <span><%= submission.username %> <span class="user-id">(<%= submission.userID %>)</span></span>
+                  </div>
+                  <div class="staff-info-item">
+                    <span class="staff-info-label">Created at:</span>
+                    <span><%= new Date(submission.createdAt).toLocaleDateString('en-US', { 
+                                                year: 'numeric', 
+                                                month: 'short', 
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: true,
+                                                timeZone: 'America/New_York'
+                                            }) %> EST</span>
+                  </div>
+                </div>
+
+                <form id="staffEditForm">
+                  <div class="field">
+                    <label class="field-label">Title</label>
+                    <input type="text" class="modal-input" name="title" value="<%= submission.title %>" maxlength="100" required>
+                  </div>
+
+                  <div class="field">
+                    <label class="field-label">Description</label>
+                    <textarea class="modal-input" name="content" rows="6" required><%= submission.content %></textarea>
+                  </div>
+
+                  <div class="field">
+                    <label class="field-label">Category</label>
+                    <select name="category" class="modal-select">
+                      <% categories.forEach(category => { %>
+                      <option value="<%= category._id %>" <%= category._id.toString() === submission.category._id.toString() ? 'selected' : '' %>>
+                        <%= category.name %>
+                      </option>
+                      <% }); %>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label class="field-label">Status</label>
+                    <select name="status" class="modal-select">
+                      <% if (submission.type === 'suggestion') { %>
+                      <option value="pending" <%= submission.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                      <option value="approved" <%= submission.status === 'approved' ? 'selected' : '' %>>Approved</option>
+                      <option value="implemented" <%= submission.status === 'implemented' ? 'selected' : '' %>>Implemented</option>
+                      <option value="rejected" <%= submission.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                      <% } else { %>
+                      <option value="pending" <%= submission.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                      <option value="investigating" <%= submission.status === 'investigating' ? 'selected' : '' %>>Investigating</option>
+                      <option value="resolved" <%= submission.status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+                      <option value="rejected" <%= submission.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                      <% } %>
+                    </select>
+                  </div>
+                </form>
+              </section>
+
+              <footer class="modal-card-foot">
+                <button class="submit-button" onclick="saveStaffChanges()">Save Changes</button>
+                <button class="modal-cancel-button" onclick="closeStaffModal()">Cancel</button>
+                <button class="delete-button" onclick="deleteSubmission()" style="margin-left: auto;">
+                  <i class="fas fa-trash"></i>
+                  Delete Submission
+                </button>
+              </footer>
+            </div>
+          </div>
+          <% } %>
+
+          <div class="comments-section">
+            <h2 class="title is-4" style="color: var(--accent-color)">
+              <i class="fas fa-comments"></i>
+              Comments
+            </h2>
+
+            <% if (submission.status !== 'pending') { %>
+            <div class="status-notice <%= submission.status %>">
+              <i class="fas <%= 
+                                    submission.status === 'approved' ? 'fa-check-circle' : 
+                                    submission.status === 'implemented' || submission.status === 'resolved' ? 'fa-check-double' :
+                                    submission.status === 'investigating' ? 'fa-microscope' :
+                                    'fa-times-circle' 
+                                %>"></i>
+              <span>
+                Comments are closed as this <%= submission.type %> has been marked as
+                <strong><%= submission.status %></strong>.
+              </span>
+            </div>
+            <% } else if (user) { %>
+            <form class="comment-form" id="commentForm" action="/submissions/<%= submission.urlID %>/comment" method="POST">
+              <div class="comment-input-container">
+                <textarea class="comment-input" name="content" placeholder="Share your thoughts..." maxlength="500" required></textarea>
+              </div>
+              <div class="comment-submit-container">
+                <button type="submit" class="submit-button" id="submitComment">
+                  <i class="fas fa-paper-plane"></i>
+                  Post Comment
+                </button>
+                <div id="cooldownMessage" class="cooldown-message" style="display: none;">
+                  Please wait <span id="cooldownTimer"></span> seconds before posting another comment
+                </div>
+              </div>
+            </form>
+            <% } %>
+
+            <div class="comments-list">
+              <% if (submission.comments && submission.comments.length > 0) { %>
+              <% submission.comments.forEach(comment => { %>
+              <div class="comment-card">
+                <div class="comment-header">
+                  <span class="comment-author">
+                    <img src="<%= comment.avatar %>" alt="<%= comment.username %>" class="user-avatar">
+                    <%= comment.username %>
+                  </span>
+                  <span class="comment-time">
+                    <i class="fas fa-clock"></i>
+                    <%= timeAgo(comment.createdAt) %>
+                  </span>
+                </div>
+                <div class="comment-content">
+                  <%= comment.content %>
+                </div>
+                <% if (isStaff || user?.id === comment.userID) { %>
+                <div class="comment-actions">
+                  <button class="delete-comment" data-comment-id="<%= comment._id %>">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </div>
+                <% } %>
+              </div>
+              <% }); %>
+              <% } else { %>
+              <div class="status-notice">
+                <i class="fas fa-info-circle"></i>
+                <span>No comments yet. <%= submission.status === 'pending' ? 'Be the first to comment!' : '' %></span>
+              </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    async function deleteSubmission() {
+      if (!confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/submissions/<%= submission.urlID %>/delete`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          window.location.href = data.redirectUrl;
+        }
+      } catch (error) {
+        console.error('Error deleting submission:', error);
+      }
+    }
+
+
+    function openStaffModal() {
+      document.getElementById('staffModal').classList.add('is-active');
+    }
+
+    function closeStaffModal() {
+      document.getElementById('staffModal').classList.remove('is-active');
+    }
+
+    async function saveStaffChanges() {
+      const form = document.getElementById('staffEditForm');
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch(`/submissions/<%= submission.urlID %>/edit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(Object.fromEntries(formData))
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          if (data.redirectUrl) {
+            window.location.href = data.redirectUrl;
+          } else {
+            window.location.reload();
+          }
+        }
+      } catch (error) {
+        console.error('Error saving changes:', error);
+      }
+    }
+
+    const voteButtons = document.querySelectorAll('.vote-button');
+
+    <% if (submission.usersVoted.find(vote => vote.userID === user?.id)) { %>
+    const userVote = '<%= submission.usersVoted.find(vote => vote.userID === user?.id).voteType %>';
+    voteButtons.forEach(button => {
+      if (button.dataset.vote === userVote) {
+        button.classList.add(`voted-${userVote}`);
+      } else {
+        button.classList.add('other-voted');
+      }
+    });
+    <% } %>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('commentForm');
+      const submitButton = document.getElementById('submitComment');
+      const cooldownMessage = document.getElementById('cooldownMessage');
+      const cooldownTimer = document.getElementById('cooldownTimer');
+      let cooldownInterval;
+
+      const checkCooldown = () => {
+        const lastCommentTime = localStorage.getItem('lastCommentTime');
+        if (lastCommentTime) {
+          const timePassed = Date.now() - parseInt(lastCommentTime);
+          const cooldownPeriod = 60 * 1000;
+
+          if (timePassed < cooldownPeriod) {
+            startCooldown((cooldownPeriod - timePassed) / 1000);
+          }
+        }
+      };
+
+      const startCooldown = (remainingSeconds) => {
+        submitButton.disabled = true;
+        cooldownMessage.style.display = 'flex';
+
+        const updateTimer = () => {
+          cooldownTimer.textContent = Math.ceil(remainingSeconds);
+          remainingSeconds--;
+
+          if (remainingSeconds < 0) {
+            clearInterval(cooldownInterval);
+            submitButton.disabled = false;
+            cooldownMessage.style.display = 'none';
+          }
+        };
+
+        updateTimer();
+        cooldownInterval = setInterval(updateTimer, 1000);
+      };
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content: form.content.value
+            })
+          });
+
+          if (response.status === 429) {
+            const data = await response.json();
+            startCooldown(Math.ceil(data.remainingTime / 1000));
+            return;
+          }
+
+          if (response.ok) {
+            localStorage.setItem('lastCommentTime', Date.now().toString());
+            startCooldown(60);
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error('Error posting comment:', error);
+        }
+      });
+
+      checkCooldown();
+    });
+
+    voteButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        if (!<%= !!user %>) {
+          window.location.href = '/login';
+          return;
+        }
+
+        if (button.classList.contains('voted-up') || button.classList.contains('voted-down')) return;
+
+        const voteType = button.dataset.vote;
+        try {
+          const response = await fetch(`/submissions/<%= submission.urlID %>/vote`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              vote: voteType
+            })
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            voteButtons.forEach(btn => {
+              const type = btn.dataset.vote;
+              btn.querySelector('span').textContent = data[`${type}votes`];
+            });
+            button.classList.add(`voted-${voteType}`);
+          }
+        } catch (error) {
+          console.error('Error voting:', error);
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-comment').forEach(button => {
+      button.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to delete this comment?')) return;
+
+        const commentId = button.dataset.commentId;
+        try {
+          const response = await fetch(`/submissions/<%= submission.urlID%>/comments/${commentId}`, {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            button.closest('.comment-card').remove();
+          }
+        } catch (error) {
+          console.error('Error deleting comment:', error);
+        }
+      });
+    });
+
+    document.querySelectorAll('.gallery-image').forEach(image => {
+      image.addEventListener('click', () => {
+        const modal = document.createElement('div');
+        modal.className = 'modal is-active';
+        modal.innerHTML = `
+                    <div class="modal-background"></div>
+                    <div class="modal-content">
+                        <p class="image">
+                            <img src="${image.src}" alt="Enlarged image" style="max-height: 90vh; width: auto; margin: 0 auto;">
+                        </p>
+                    </div>
+                    <button class="modal-close is-large" aria-label="close"></button>
+                `;
+        document.body.appendChild(modal);
+
+        modal.querySelector('.modal-background, .modal-close').addEventListener('click', () => {
+          modal.remove();
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

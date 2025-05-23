@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= settings.name %> - Create Submission</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="<%= settings.favicon %>">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= config.baseURL %>/submissions/create">
+  <meta property="og:title" content="<%= settings.name %> - Create Submission">
+  <meta property="og:description" content="Help us improve by sharing your ideas or reporting issues. Submit detailed suggestions and bug reports to make our community better.">
+  <meta property="theme-color" content="<%= settings.accentColor %>">
+
+  <style>
+    :root {
+      --accent-color: <%=accentColorHex %>;
+      --accent-color-rgb: <%=accentColorRgb %>;
+      --bg-dark: #0a0a0f;
+      --card-bg: #151520;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      background: radial-gradient(circle at top left, rgba(var(--accent-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.15) 50%, rgba(var(--accent-color-rgb), 0.1) 100%), #0f0f13;
+      color: var(--text-secondary);
+      min-height: 100vh;
+    }
+
+    .section {
+      padding: 3rem 1.5rem;
+    }
+
+    .title {
+      color: var(--text-primary);
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #8b949e;
+    }
+
+    .submission-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .field {
+  margin-bottom: 2rem;
+}
+
+.field-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.field-label {
+  text-align: left !important;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.3rem;
+}
+
+.field-header .icon {
+  font-size: 1.2rem;
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+}
+
+
+.input::placeholder,
+.textarea::placeholder,
+.select select::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.input,
+.textarea,
+.select select {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  height: auto;
+  color: white;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+.select:not(.is-multiple):not(.is-loading)::after {
+border-color: var(--accent-color);
+ transition: border-color 0.3s ease;
+}
+
+.select:not(.is-multiple):not(.is-loading):hover::after {
+ border-color: var(--accent-color);
+}
+
+.select select {
+  padding-right: 2.5em;
+  color: var(--text-primary);
+}
+
+.select select option {
+  background-color: var(--card-bg);
+  color: var(--text-primary);
+}
+
+.select select option:first-child {
+  display: none;
+}
+
+.input:focus,
+.textarea:focus,
+.select select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.125em rgba(var(--accent-color-rgb), 0.25);
+}
+
+    .file-drop-zone {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .file-drop-zone:hover {
+      border-color: var(--accent-color);
+      background-color: rgba(var(--accent-color-rgb), 0.05);
+    }
+
+    .file-drop-zone.is-dragover {
+      border-color: var(--accent-color);
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+    }
+
+    .preview-image {
+      position: relative;
+      display: inline-block;
+      margin: 0.5rem;
+    }
+
+    .preview-image img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .preview-image .delete {
+      position: absolute;
+      top: -0.5rem;
+      right: -0.5rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+    }
+
+    .button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      color: white;
+      box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.3);
+    }
+
+    .type-selector {
+      margin-bottom: 2rem;
+    }
+
+    .type-button {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .type-button:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-color);
+    }
+
+    .type-button.is-active {
+      border-color: var(--accent-color);
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+    }
+
+    .type-button .icon {
+      color: var(--accent-color);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-message {
+      color: rgb(238, 62, 62);
+      margin-top: 0.5rem;
+    }
+
+  </style>
+</head>
+
+<body>
+  <%- include('partials/header', { user: user }) %>
+
+  <section class="section">
+    <div class="container">
+      <h1 class="title">Create Submission</h1>
+      <p class="subtitle">Share your suggestions or report bugs to help improve the community</p>
+
+      <form id="submissionForm" action="/submissions/create" method="POST" enctype="multipart/form-data">
+        <div class="columns type-selector">
+          <div class="column is-6">
+            <div class="type-button has-text-centered" onclick="setType('suggestion')" id="suggestionButton">
+              <i class="fas fa-lightbulb icon"></i>
+              <h3 class="title is-5">Suggestion</h3>
+              <p>Share your ideas to improve the community</p>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="type-button has-text-centered" onclick="setType('bug')" id="bugButton">
+              <i class="fas fa-bug icon"></i>
+              <h3 class="title is-5">Bug Report</h3>
+              <p>Help us identify and fix issues</p>
+            </div>
+          </div>
+        </div>
+
+        <input type="hidden" name="type" id="submissionType" required>
+
+        <div class="submission-card">
+            <div class="field">
+                <div class="field-header">
+                  <i class="fas fa-folder icon"></i>
+                  <label class="label field-label">Category</label>
+                </div>
+                <div class="control">
+                  <div class="select is-fullwidth">
+                    <select name="category" required>
+                      <option value="" disabled selected>Select a category</option>
+                      <% categories.forEach(category => { %>
+                          <option value="<%= category._id %>" 
+                                  data-type="<%= category.type %>"
+                                  data-category="<%= JSON.stringify({type: category.type, isAccessible: category.isAccessible}) %>"
+                                  <%= !category.isAccessible ? 'disabled' : '' %>>
+                              <%= category.name %><%= !category.isAccessible ? ' (No permission)' : '' %>
+                          </option>
+                      <% }); %>
+                   </select>
+                  </div>
+                </div>
+              </div>
+
+          <div class="field">
+            <div class="field-header">
+              <i class="fa-solid fa-comment icon"></i>
+              <label class="label field-label">Title</label>
+            </div>
+            <div class="control">
+                <input class="input" type="text" name="title" placeholder="Brief description of the suggestion/bug" required maxlength="80">
+                <p class="help title-char-count" style="text-align: right; color: var(--text-secondary);">0 / 80</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+              <i class="fas fa-align-left icon"></i>
+              <label class="label field-label">Description</label>
+            </div>
+            <div class="control">
+                <textarea class="textarea" name="content" placeholder="Provide detailed information..." required rows="6" maxlength="2000"></textarea>
+                <p class="help char-count" style="text-align: right; color: var(--text-secondary);">0 / 2000</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-header">
+                <i class="fas fa-images icon"></i>
+                <label class="label field-label">Images (Optional)</label>
+              </div>
+            <div class="file-drop-zone" id="dropZone">
+              <input type="file" id="fileInput" name="images" multiple accept="image/*" style="display: none;">
+              <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color: var(--accent-color)"></i>
+              <p>Drag and drop images here or click to select files</p>
+              <p class="is-size-7 mt-2">Supported formats: PNG, JPG, JPEG, GIF (Max 5MB each)</p>
+            </div>
+            <div id="imagePreview" class="mt-4"></div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <button type="submit" class="button is-fullwidth">
+                <span class="icon">
+                  <i class="fas fa-paper-plane"></i>
+                </span>
+                <span>Submit</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+
+  <script>
+
+
+function initializeFromHash() {
+  const hash = window.location.hash.slice(1);
+  if (hash === 'suggestion' || hash === 'bug') {
+    setType(hash);
+  } else {
+    setType('suggestion');
+  }
+}
+
+document.querySelector('textarea[name="content"]').addEventListener('input', function(e) {
+  const current = e.target.value.length;
+  const max = e.target.getAttribute('maxlength');
+  document.querySelector('.char-count').textContent = `${current} / ${max}`;
+});
+
+document.querySelector('input[name="title"]').addEventListener('input', function(e) {
+  const current = e.target.value.length;
+  const max = e.target.getAttribute('maxlength');
+  document.querySelector('.title-char-count').textContent = `${current} / ${max}`;
+});
+
+function updateCategoryOptions() {
+  const select = document.querySelector('select[name="category"]');
+  const type = document.getElementById('submissionType').value;
+  const options = select.querySelectorAll('option:not([value=""])');
+  
+  options.forEach(option => {
+    const category = JSON.parse(option.dataset.category);
+    option.style.display = category.type === type ? '' : 'none';
+  });
+  
+  if (select.selectedOptions[0] && select.selectedOptions[0].style.display === 'none') {
+    select.value = '';
+  }
+}
+
+function setType(type) {
+  document.getElementById('submissionType').value = type;
+  document.getElementById('suggestionButton').classList.toggle('is-active', type === 'suggestion');
+  document.getElementById('bugButton').classList.toggle('is-active', type === 'bug');
+  updateCategoryOptions();
+}
+
+    initializeFromHash();
+
+    window.addEventListener('hashchange', initializeFromHash);
+
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const imagePreview = document.getElementById('imagePreview');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('is-dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('is-dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('is-dragover');
+      handleFiles(e.dataTransfer.files);
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+  const maxFiles = 3;
+  const currentFiles = imagePreview.children.length;
+  
+  if (currentFiles + files.length > maxFiles) {
+    if (!document.querySelector('.error-message')) {
+      const errorMsg = document.createElement('p');
+      errorMsg.className = 'error-message';
+      errorMsg.textContent = `Maximum ${maxFiles} images allowed`;
+      dropZone.parentElement.appendChild(errorMsg);
+    }
+    return;
+  }
+
+  const errorMsg = document.querySelector('.error-message');
+  if (errorMsg) {
+    errorMsg.remove();
+  }
+
+  Array.from(files).forEach(file => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = document.createElement('div');
+        preview.className = 'preview-image';
+        preview.innerHTML = `
+          <img src="${e.target.result}" alt="Preview">
+          <button type="button" class="delete" onclick="removeImage(this)"></button>
+        `;
+        imagePreview.appendChild(preview);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+function removeImage(button) {
+  button.parentElement.remove();
+  const errorMsg = document.querySelector('.error-message');
+  if (errorMsg) {
+    errorMsg.remove();
+  }
+}
+
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+</body>
+</html>

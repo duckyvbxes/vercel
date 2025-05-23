@@ -1,0 +1,1179 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= settings.name %> - Staff Panel</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link rel="icon" href="<%= settings.favicon %>">
+
+  <style>
+    :root {
+      --accent-color: <%=accentColorHex %>;
+      --accent-color-rgb: <%=accentColorRgb %>;
+      --bg-dark: #0a0a0f;
+      --card-bg: #151520;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(var(--accent-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.15) 50%, rgba(var(--accent-color-rgb), 0.1) 100%), #0f0f13;
+      color: var(--text-secondary);
+    }
+
+    .title {
+      color: var(--text-primary);
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+    }
+
+    .box {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.75rem;
+    }
+
+    .category-card {
+      background-color: #1a1b23;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .category-card:hover {
+      transform: translateX(4px);
+      border-color: rgba(var(--accent-color-rgb), 0.3);
+      box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.1);
+    }
+
+    .drag-handle {
+      color: var(--text-secondary);
+      cursor: grab;
+      padding: 0.5rem;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+
+
+    .category-content {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    .category-title {
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .category-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .category-actions .button {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .category-actions .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .category-actions .button.is-danger {
+      border-color: rgba(237, 66, 69, 0.3);
+      color: #ED4245;
+    }
+
+    .category-actions .button.is-danger:hover {
+      background-color: #ED4245;
+      color: white;
+    }
+
+    .category-actions .button:not(.is-danger):hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    .create-button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .create-button:hover {
+      color: white;
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+
+    .field .input,
+    .field .textarea {
+      background-color: #1E2028;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+
+    }
+
+    .input::placeholder {
+      color: #9CA3AF !important;
+    }
+
+    .input {
+      color: var(--text-primary) !important;
+    }
+
+    .field .input:focus,
+    .field .textarea:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.1);
+    }
+
+    .modal-card-body .input::placeholder,
+    .modal-card-body .textarea::placeholder {
+      color: #9CA3AF;
+      opacity: 0.8;
+    }
+
+    .label {
+      color: var(--text-primary);
+    }
+
+    .category-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    .modal-card-head,
+    .modal-card-foot {
+      background-color: var(--card-bg);
+      border-color: var(--border-color);
+    }
+
+    .modal-card-body {
+      background-color: #151520;
+      padding: 1.5rem;
+    }
+
+    .modal-card-body .input,
+    .modal-card-body .textarea {
+      background-color: #1E2028;
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      height: 2.5rem;
+      transition: all 0.2s ease;
+    }
+
+    .modal-card-title {
+      color: var(--text-primary);
+    }
+
+    .color-preview {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.5rem;
+    }
+
+    @media screen and (max-width: 768px) {
+      .category-list-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .category-list-header .create-button {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .category-card {
+        padding: 1rem;
+      }
+
+      .category-actions {
+        flex-direction: column;
+      }
+    }
+
+    .select select {
+      background-color: #1E2028 !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: 8px !important;
+      padding: 0.5rem 1rem !important;
+      height: 2.75rem !important;
+      cursor: pointer !important;
+    }
+
+    .select:not(.is-multiple):not(.is-loading)::after {
+      border-color: var(--accent-color) !important;
+      right: 1.125em !important;
+    }
+
+    .select select:hover {
+      border-color: rgba(var(--accent-color-rgb), 0.5) !important;
+    }
+
+    .select select:focus {
+      border-color: var(--accent-color) !important;
+      box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.1) !important;
+    }
+
+    .select select option {
+      background-color: #1E2028 !important;
+      color: var(--text-primary) !important;
+      padding: 8px 12px !important;
+    }
+
+    .select select optgroup {
+      background-color: var(--bg-dark) !important;
+      color: var(--accent-color) !important;
+      font-weight: 600 !important;
+      padding: 8px 4px !important;
+    }
+
+    .select select option:hover,
+    .select select option:focus,
+    .select select option:active,
+    .select select option:checked {
+      background-color: rgba(var(--accent-color-rgb), 0.1) !important;
+      color: var(--accent-color) !important;
+    }
+
+    .select2-container {
+      width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      background-color: #1E2028 !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: 8px !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      background: var(--accent-color) !important;
+      border: none !important;
+      border-radius: 6px !important;
+      color: white !important;
+      padding: 2px 6px 2px 20px !important;
+      margin: 2px !important;
+      position: relative !important;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+      color: rgba(255, 255, 255, 0.8) !important;
+      position: absolute !important;
+      left: 4px !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      border: none !important;
+      background: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .select2-dropdown {
+      background-color: #1E2028 !important;
+      border: 1px solid var(--border-color) !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+      background-color: rgba(var(--accent-color-rgb), 0.1) !important;
+      color: var(--accent-color) !important;
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true] {
+      background-color: rgba(var(--accent-color-rgb), 0.2) !important;
+    }
+
+    .select2-results__option {
+      color: var(--text-secondary) !important;
+      padding: 8px 12px !important;
+    }
+
+    .select2-selection--multiple {
+      min-height: 2.75rem !important;
+    }
+
+    .select2-container--default {
+      width: 100% !important;
+    }
+
+    .select2-container--default .select2-selection--multiple {
+      background-color: #1E2028 !important;
+      border: 1px solid var(--border-color) !important;
+      border-radius: 8px !important;
+      padding: 4px !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--multiple {
+      border-color: var(--accent-color) !important;
+      box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.1) !important;
+    }
+
+    .select2-container--default .select2-dropdown {
+      border: 1px solid var(--border-color) !important;
+      border-radius: 8px !important;
+      margin-top: 4px !important;
+      z-index: 9999 !important;
+    }
+
+    .banned-user-card {
+      background-color: #1a1b23;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .banned-user-card:hover {
+      transform: translateX(4px);
+      border-color: rgba(var(--accent-color-rgb), 0.3);
+    }
+
+    .banned-user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .banned-user-id {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .banned-timestamp {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .banned-user-card .button {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .banned-user-card .button:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      background-color: rgba(237, 66, 69, 0.1);
+      border: 1px solid rgba(237, 66, 69, 0.2);
+      color: #ED4245;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .error-message .icon {
+      color: #ED4245;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .banned-user-name {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .banned-user-id {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .pagination-link.is-current {
+      background-color: var(--accent-color) !important;
+      border-color: var(--accent-color) !important;
+    }
+
+    .pagination-link,
+    .pagination-previous,
+    .pagination-next {
+      background-color: var(--card-bg) !important;
+      border-color: var(--border-color) !important;
+      color: var(--text-secondary) !important;
+    }
+
+    .pagination-link:hover,
+    .pagination-previous:hover,
+    .pagination-next:hover {
+      border-color: var(--accent-color) !important;
+      color: var(--accent-color) !important;
+    }
+
+    [disabled] {
+      opacity: 0.5;
+      cursor: not-allowed !important;
+    }
+
+    .ban-info-note {
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      border-left: 4px solid var(--accent-color);
+      color: var(--text-primary);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .ban-info-note .icon {
+      color: var(--accent-color);
+      font-size: 1.1rem;
+      margin-top: 0.1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/header', { user: user }) %>
+
+  <section class="section">
+    <div class="container">
+      <h1 class="title">Staff Panel</h1>
+      <p class="subtitle">Manage categories and customize your tracker</p>
+
+      <div class="columns is-multiline">
+        <!-- Suggestion Categories -->
+        <div class="column is-6">
+          <div class="box">
+            <div class="category-list-header">
+              <h2 class="title is-4">Suggestion Categories</h2>
+              <button class="button create-button" onclick="openCategoryModal('suggestion')">
+                <span class="icon"><i class="fas fa-plus"></i></span>
+                <span>Add Category</span>
+              </button>
+            </div>
+
+            <div id="suggestionCategories">
+              <% suggestionCategories.forEach(category => { %>
+              <div class="category-card" data-id="<%= category._id %>">
+                <div class="drag-handle">
+                  <i class="fas fa-grip-vertical"></i>
+                </div>
+                <div class="category-content">
+                  <div class="category-title"><%= category.name %></div>
+                </div>
+                <div class="category-actions">
+                  <button class="button is-small" onclick="editCategory('<%= category._id %>')">
+                    <span class="icon"><i class="fas fa-edit"></i></span>
+                  </button>
+                  <button class="button is-small is-danger" onclick="deleteCategory('<%= category._id %>')">
+                    <span class="icon"><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bug Categories -->
+        <div class="column is-6">
+          <div class="box">
+            <div class="category-list-header">
+              <h2 class="title is-4">Bug Report Categories</h2>
+              <button class="button create-button" onclick="openCategoryModal('bug')">
+                <span class="icon"><i class="fas fa-plus"></i></span>
+                <span>Add Category</span>
+              </button>
+            </div>
+
+            <div id="bugCategories">
+              <% bugCategories.forEach(category => { %>
+              <div class="category-card" data-id="<%= category._id %>">
+                <div class="drag-handle">
+                  <i class="fas fa-grip-vertical"></i>
+                </div>
+                <div class="category-content">
+                  <div class="category-title"><%= category.name %></div>
+                </div>
+                <div class="category-actions">
+                  <button class="button is-small" onclick="editCategory('<%= category._id %>')">
+                    <span class="icon"><i class="fas fa-edit"></i></span>
+                  </button>
+                  <button class="button is-small is-danger" onclick="deleteCategory('<%= category._id %>')">
+                    <span class="icon"><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page Settings -->
+        <div class="column is-12">
+          <div class="box">
+            <h2 class="title is-4">Page Settings</h2>
+            <form action="/settings" method="POST" enctype="multipart/form-data">
+              <div class="field">
+                <label class="label">Website Name</label>
+                <div class="control">
+                  <input class="input" type="text" name="websiteName" value="<%= settings ? settings.name : '' %>" placeholder="Enter website name">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Accent Color</label>
+                <div class="control">
+                  <input class="input" type="color" name="accentColor" value="<%= settings ? settings.accentColor : '#5e99ff' %>">
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label">Upload Logo</label>
+                <div class="control">
+                  <input class="input" type="file" name="logo" accept=".jpg,.png">
+                </div>
+                <p class="help has-text-grey">Supported formats: .jpg, .png</p>
+              </div>
+
+              <div class="field">
+                <label class="label">Upload Favicon</label>
+                <div class="control">
+                  <input class="input" type="file" name="favicon" accept=".ico">
+                </div>
+                <p class="help has-text-grey">Supported formats: .ico</p>
+              </div>
+
+              <button class="button create-button" type="submit">Save Settings</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="column is-12">
+          <div class="box" id="banManagement">
+            <h2 class="title is-4">Ban Management</h2>
+            <p class="subtitle">Manage user access to the tracker</p>
+
+            <div class="ban-info-note">
+              <span class="icon">
+                <i class="fas fa-info-circle"></i>
+              </span>
+              <span>By banning a user, they will be unable to access the dashboard and all of their existing content will be automatically removed, including their comments and submissions.</span>
+            </div>
+
+            <!-- Ban Form -->
+            <div class="field has-addons">
+              <div class="control is-expanded">
+                <input class="input" type="text" id="banUserID" placeholder="Enter Discord User ID" pattern="[0-9]+" title="Please enter a valid Discord ID">
+              </div>
+              <div class="control">
+                <button class="button create-button" onclick="banUser()">
+                  <span class="icon">
+                    <i class="fas fa-ban"></i>
+                  </span>
+                  <span>Ban User</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Banned Users List -->
+            <div class="banned-users-container mt-4">
+              <h3 class="title is-5 mb-3">Banned Users</h3>
+              <div id="bannedUsersList">
+                <% if (bannedUsers && bannedUsers.length > 0) { %>
+                <% bannedUsers.forEach(user => { %>
+                <div class="banned-user-card">
+                  <div class="banned-user-info">
+                    <div class="user-details">
+                      <span class="banned-user-name">
+                        <%= user.username %>
+                      </span>
+                      <span class="banned-user-id">ID: <%= user.userID %></span>
+                    </div>
+                    <span class="banned-timestamp">Banned <%= timeAgo(user.bannedAt) %></span>
+                  </div>
+                  <button class="button is-small" onclick="unbanUser('<%= user.userID %>')">
+                    <span class="icon">
+                      <i class="fas fa-user-check"></i>
+                    </span>
+                    <span>Unban</span>
+                  </button>
+                </div>
+                <% }); %>
+
+                <% if (banPagination.totalPages > 1) { %>
+                <nav class="pagination is-centered mt-4" role="navigation" aria-label="pagination">
+                  <a class="pagination-previous" <%= !banPagination.hasPrev ? 'disabled' : '' %> onclick="changePage(<%= banPagination.currentPage - 1 %>)" href="javascript:void(0);">
+                    Previous
+                  </a>
+                  <a class="pagination-next" <%= !banPagination.hasNext ? 'disabled' : '' %> onclick="changePage(<%= banPagination.currentPage + 1 %>)" href="javascript:void(0);">
+                    Next
+                  </a>
+                  <ul class="pagination-list">
+                    <% for(let i = 1; i <= banPagination.totalPages; i++) { %>
+                    <li>
+                      <a class="pagination-link <%= i === banPagination.currentPage ? 'is-current' : '' %>" onclick="changePage(<%= i %>)" href="javascript:void(0);" aria-label="Page <%= i %>" aria-current="<%= i === banPagination.currentPage ? 'page' : false %>">
+                        <%= i %>
+                      </a>
+                    </li>
+                    <% } %>
+                  </ul>
+                </nav>
+                <% } %>
+                <% } else { %>
+                <p class="has-text-grey">No banned users</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+  </section>
+
+  <!-- Category Modal -->
+  <div class="modal" id="categoryModal">
+    <div class="modal-background"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Add New Category</p>
+        <button class="delete" aria-label="close" onclick="closeCategoryModal()"></button>
+      </header>
+      <section class="modal-card-body">
+        <form id="categoryForm">
+          <input type="hidden" id="categoryType" name="type">
+
+          <!-- Basic Information -->
+          <div class="field">
+            <label class="label">Category Name</label>
+            <div class="control">
+              <input class="input" type="text" id="categoryName" maxlength="30" placeholder="Enter a short, descriptive name" required>
+            </div>
+          </div>
+
+          <!-- Discord Integration Section -->
+          <div class="mt-5 mb-3">
+            <h3 class="title is-6" style="color: var(--accent-color)">Discord Integration (Optional)</h3>
+          </div>
+
+          <!-- Discord Channel -->
+          <div class="field">
+            <label class="label">Notification Channel</label>
+            <div class="control">
+              <div class="select is-fullwidth">
+                <select id="discordChannel">
+                  <option value="">Select channel (optional)</option>
+                </select>
+              </div>
+            </div>
+            <p class="help">Select a channel where new submissions will be sent</p>
+          </div>
+
+          <!-- Required Roles -->
+          <div class="field">
+            <label class="label">Required Roles</label>
+            <div class="control">
+              <select id="requiredRoles" multiple>
+              </select>
+            </div>
+            <p class="help">Select roles that can use this category (leave empty for everyone)</p>
+          </div>
+        </form>
+      </section>
+      <footer class="modal-card-foot">
+        <button class="button create-button" onclick="saveCategory()">Create Category</button>
+        <button class="button" onclick="closeCategoryModal()">Cancel</button>
+      </footer>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    async function banUser() {
+      const userID = document.getElementById('banUserID').value.trim();
+      const errorContainer = document.getElementById('banError');
+
+      if (errorContainer) {
+        errorContainer.remove();
+      }
+
+      if (!userID) {
+        showError('Please enter a Discord User ID');
+        return;
+      }
+
+      try {
+        const response = await fetch('/ban-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userID
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError(data.message || 'Failed to ban user');
+          return;
+        }
+
+        location.reload();
+      } catch (err) {
+        console.error('Error banning user:', err);
+        showError('An error occurred while banning the user');
+      }
+    }
+
+    function showError(message) {
+      // Remove any existing error message
+      const existingError = document.getElementById('banError');
+      if (existingError) {
+        existingError.remove();
+      }
+
+      // Create new error message
+      const errorDiv = document.createElement('div');
+      errorDiv.id = 'banError';
+      errorDiv.className = 'error-message';
+      errorDiv.innerHTML = `
+        <span class="icon">
+            <i class="fas fa-exclamation-circle"></i>
+        </span>
+        <span>${message}</span>
+    `;
+
+      // Insert after the input field
+      const banForm = document.querySelector('.field.has-addons');
+      banForm.parentNode.insertBefore(errorDiv, banForm.nextSibling);
+    }
+
+    async function unbanUser(userID) {
+      if (confirm('Are you sure you want to unban this user?')) {
+        try {
+          const response = await fetch(`/unban-user/${userID}`, {
+            method: 'POST'
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to unban user');
+          }
+        } catch (err) {
+          console.error('Error unbanning user:', err);
+          alert('An error occurred while unbanning the user');
+        }
+      }
+    }
+
+    function changePage(page) {
+      // Get current URL and update only the banPage parameter
+      const url = new URL(window.location.href);
+      url.searchParams.set('banPage', page);
+
+      // Remove any existing hash
+      url.hash = '';
+
+      // Update the URL without adding hashes
+      window.location.href = url.toString();
+
+      // Store the scroll position in sessionStorage
+      sessionStorage.setItem('scrollToBanManagement', 'true');
+    }
+
+    // Add this to handle scrolling after page load
+    document.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('scrollToBanManagement')) {
+        // Clear the flag
+        sessionStorage.removeItem('scrollToBanManagement');
+
+        // Scroll to ban management
+        const banManagement = document.getElementById('banManagement');
+        if (banManagement) {
+          banManagement.scrollIntoView();
+        }
+      }
+    });
+
+    const preloadedDiscordData = <%- JSON.stringify(discordData) %>;
+
+    // Initialize sortable for both category lists
+    ['suggestionCategories', 'bugCategories'].forEach(listId => {
+      new Sortable(document.getElementById(listId), {
+        animation: 150,
+        handle: '.drag-handle',
+        onEnd: async function(evt) {
+          const items = [...evt.to.children];
+          const positions = items.map((item, index) => ({
+            id: item.dataset.id,
+            position: index
+          }));
+
+          try {
+            await fetch('/categories/update-positions', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                positions
+              })
+            });
+          } catch (err) {
+            console.error('Failed to update positions:', err);
+          }
+        }
+      });
+    });
+
+    function initializeSelect2() {
+      $('#requiredRoles').select2({
+        placeholder: 'Select roles (optional)',
+        width: '100%',
+        dropdownParent: $('#categoryModal'),
+        theme: "default",
+        templateResult: formatRole,
+        templateSelection: formatRole
+      });
+    }
+
+    function openCategoryModal(type) {
+      resetModalState();
+      document.getElementById('categoryType').value = type;
+      document.querySelector('.modal-card-title').textContent =
+        `Add New ${type.charAt(0).toUpperCase() + type.slice(1)} Category`;
+
+      const submitButton = document.querySelector('.modal-card-foot .create-button');
+      submitButton.textContent = 'Create Category';
+      submitButton.onclick = saveCategory;
+
+      document.getElementById('categoryModal').classList.add('is-active');
+
+      // Initialize select2
+      initializeSelect2();
+      loadDiscordData();
+    }
+
+    function closeCategoryModal() {
+      document.getElementById('categoryModal').classList.remove('is-active');
+      document.getElementById('categoryForm').reset();
+    }
+
+    async function saveCategory() {
+      const formData = {
+        name: document.getElementById('categoryName').value.trim(),
+        type: document.getElementById('categoryType').value,
+        discordChannel: document.getElementById('discordChannel').value,
+        requiredRoles: $('#requiredRoles').val() || []
+      };
+
+      if (!formData.name) {
+        alert("Category Name is required!");
+        return;
+      }
+
+      try {
+        const response = await fetch('/categories/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          updateCategoryList(
+            formData.type === 'suggestion' ? 'suggestionCategories' : 'bugCategories',
+            formData.type === 'suggestion' ? result.suggestionCategories : result.bugCategories
+          );
+          closeCategoryModal();
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Failed to create category');
+        }
+      } catch (err) {
+        console.error('Error creating category:', err);
+        alert('An error occurred while creating the category');
+      }
+    }
+
+    function resetModalState() {
+      document.getElementById('categoryForm').reset();
+      document.getElementById('discordChannel').value = '';
+      const $roleSelect = $('#requiredRoles');
+      $roleSelect.val(null).trigger('change');
+    }
+
+    function closeCategoryModal() {
+      document.getElementById('categoryModal').classList.remove('is-active');
+      resetModalState();
+    }
+
+    function loadDiscordData() {
+      populateChannels(preloadedDiscordData.channels);
+      populateRoles(preloadedDiscordData.roles);
+      return preloadedDiscordData;
+    }
+
+    function populateChannels(channels) {
+      const channelSelect = document.getElementById('discordChannel');
+      channelSelect.innerHTML = '<option value="">Select channel (optional)</option>';
+
+      const channelsByCategory = {};
+      channels.forEach(channel => {
+        if (!channelsByCategory[channel.category]) {
+          channelsByCategory[channel.category] = [];
+        }
+        channelsByCategory[channel.category].push(channel);
+      });
+
+      Object.keys(channelsByCategory).sort().forEach(category => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = category;
+
+        channelsByCategory[category]
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .forEach(channel => {
+            const option = document.createElement('option');
+            option.value = channel.id;
+            option.textContent = '#' + channel.name;
+            optgroup.appendChild(option);
+          });
+
+        channelSelect.appendChild(optgroup);
+      });
+    }
+
+    function populateRoles(roles) {
+      const $roleSelect = $('#requiredRoles');
+      $roleSelect.empty();
+
+      roles.forEach(role => {
+        const option = new Option(role.name, role.id);
+        $roleSelect.append(option);
+      });
+
+      $roleSelect.select2({
+        placeholder: 'Select roles (optional)',
+        width: '100%',
+        dropdownParent: $('#categoryModal'),
+        templateResult: formatRole,
+        templateSelection: formatRole
+      });
+    }
+
+    function formatRole(role) {
+      if (!role.id) return role.text;
+      return $(`<span style="color: ${role.color || 'var(--text-primary)'}">● ${role.text}</span>`);
+    }
+
+    function updateCategoryList(containerId, categories) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = categories.map(category => `
+        <div class="category-card" data-id="${category._id}">
+            <div class="drag-handle">
+                <i class="fas fa-grip-vertical"></i>
+            </div>
+            <div class="category-content">
+                <div class="category-title">${category.name}</div>
+            </div>
+            <div class="category-actions">
+                <button class="button is-small" onclick="editCategory('${category._id}')">
+                    <span class="icon"><i class="fas fa-edit"></i></span>
+                </button>
+                <button class="button is-small is-danger" onclick="deleteCategory('${category._id}')">
+                    <span class="icon"><i class="fas fa-trash"></i></span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    async function editCategory(id) {
+      try {
+        resetModalState();
+        const response = await fetch(`/categories/${id}`);
+        const category = await response.json();
+
+        await loadDiscordData();
+
+        // Set fields after Discord data is loaded
+        document.getElementById('categoryType').value = category.type;
+        document.getElementById('categoryName').value = category.name;
+
+        // Set Discord channel
+        const channelSelect = document.getElementById('discordChannel');
+        if (category.discordChannel) {
+          channelSelect.value = category.discordChannel;
+        }
+
+        // Set required roles
+        const $roleSelect = $('#requiredRoles');
+        if (category.requiredRoles?.length > 0) {
+          $roleSelect.val(category.requiredRoles).trigger('change');
+        }
+
+        // Update modal UI
+        document.querySelector('.modal-card-title').textContent = 'Edit Category';
+        const submitButton = document.querySelector('.modal-card-foot .create-button');
+        submitButton.textContent = 'Update Category';
+        submitButton.onclick = () => updateCategory(id);
+
+        document.getElementById('categoryModal').classList.add('is-active');
+      } catch (err) {
+        console.error('Error fetching category:', err);
+        alert('Failed to load category details');
+      }
+    }
+
+    async function updateCategory(id) {
+      const formData = {
+        name: document.getElementById('categoryName').value,
+        discordChannel: document.getElementById('discordChannel').value,
+        requiredRoles: $('#requiredRoles').val()
+      };
+
+      if (!formData.name) {
+        alert("Category Name is required!");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/categories/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          // Update UI without page reload
+          const type = document.getElementById('categoryType').value;
+          if (result.categories) {
+            updateCategoryList(
+              type === 'suggestion' ? 'suggestionCategories' : 'bugCategories',
+              result.categories
+            );
+          }
+          closeCategoryModal();
+        } else {
+          const error = await response.json();
+          alert(error.message || 'Failed to update category');
+        }
+      } catch (err) {
+        console.error('Error updating category:', err);
+        alert('An error occurred while updating the category');
+      }
+    }
+
+    async function deleteCategory(id) {
+      if (confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+        try {
+          const response = await fetch(`/categories/${id}`, {
+            method: 'DELETE'
+          });
+
+          if (response.ok) {
+            location.reload();
+          } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to delete category');
+          }
+        } catch (err) {
+          console.error('Error deleting category:', err);
+          alert('An error occurred while deleting the category');
+        }
+      }
+    }
+
+    // Close modal when clicking outside
+    document.querySelector('.modal-background').addEventListener('click', closeCategoryModal);
+    // Close modal when pressing ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('categoryModal').classList.contains('is-active')) {
+        closeCategoryModal();
+      }
+    });
+  </script>
+
+</body>
+
+</html>

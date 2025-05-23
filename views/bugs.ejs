@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= settings.name %> - Bugs</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="icon" href="<%= settings.favicon %>">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="<%= config.baseURL %>/bugs">
+  <meta property="og:title" content="<%= settings.name %> - Bug Reports">
+  <meta property="og:description" content="Browse and submit bug reports to help shape the future of our community. track their progress, and be part of the improvement process.">
+  <meta property="theme-color" content="<%= settings.accentColor %>">
+
+  <style>
+    :root {
+      --accent-color: <%=accentColorHex %>;
+      --accent-color-rgb: <%=accentColorRgb %>;
+      --bg-dark: #0a0a0f;
+      --card-bg: #151520;
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+      background: radial-gradient(circle at top left, rgba(var(--accent-color-rgb), 0.2) 0%, rgba(var(--accent-color-rgb), 0.15) 50%, rgba(var(--accent-color-rgb), 0.1) 100%), #0f0f13;
+      color: var(--text-secondary);
+      min-height: 100vh;
+    }
+
+    .title {
+      color: var(--text-primary);
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+    }
+
+    .bug-icon {
+      width: 40px;
+      height: 40px;
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+
+    .bug-icon i {
+      color: var(--accent-color);
+      font-size: 1.2rem;
+    }
+
+    .bug-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .bug-card:hover {
+      transform: translateX(4px);
+      border-color: rgba(var(--accent-color-rgb), 0.3);
+    }
+
+    .bug-content {
+      flex-grow: 1;
+      margin-right: 1rem;
+    }
+
+    .bug-title {
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .bug-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .category-tag {
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      color: var(--accent-color);
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .view-button {
+      background-color: transparent;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .view-button:hover {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .button.new-bug {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .button.new-bug:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.3);
+    }
+
+    .bug-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .filters {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+
+    .filters select {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .select {
+      width: 100%;
+      position: relative;
+    }
+
+    .select select {
+      width: 100%;
+      padding: 0.4rem 1rem;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      cursor: pointer;
+      appearance: none;
+      padding-right: 2.5rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .select::after {
+      content: '';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid var(--accent-color);
+      pointer-events: none;
+    }
+
+    .select select:focus,
+    .select select:hover {
+      border-color: var(--accent-color);
+    }
+
+    .select:not(.is-multiple):not(.is-loading)::after {
+      border-color: var(--accent-color);
+      transition: border-color 0.3s ease;
+    }
+
+    .select:not(.is-multiple):not(.is-loading):hover::after {
+      border-color: var(--accent-color);
+    }
+
+    .status-tag {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+    }
+
+    .status-pending {
+      background-color: rgba(255, 171, 0, 0.1);
+      color: #ffab00;
+    }
+
+    .status-approved {
+      background-color: rgba(0, 200, 83, 0.1);
+      color: #00c853;
+    }
+
+    .status-implemented {
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      color: var(--accent-color);
+    }
+
+    .status-investigating {
+      background-color: rgba(33, 150, 243, 0.15);
+      color: #2196f3;
+    }
+
+    .status-resolved {
+      background-color: rgba(0, 200, 83, 0.15);
+      color: #00c853;
+    }
+
+    .status-rejected {
+      background-color: rgba(244, 67, 54, 0.1);
+      color: #f44336;
+    }
+
+    .pagination {
+      margin-top: 2rem;
+    }
+
+    .pagination-link,
+    .pagination-previous,
+    .pagination-next {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .pagination-link:hover,
+    .pagination-previous:hover,
+    .pagination-next:hover {
+      background-color: rgba(var(--accent-color-rgb), 0.1);
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+
+    .pagination-link.is-current {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      color: white;
+    }
+
+    .pagination-link.is-current:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      color: white;
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .pagination-previous[disabled],
+    .pagination-next[disabled],
+    .pagination-link[disabled] {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-color);
+      color: var(--text-secondary);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .pagination-link:not(.is-current):hover,
+    .pagination-previous:not([disabled]):hover,
+    .pagination-next:not([disabled]):hover {
+      box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.15);
+    }
+
+    .section {
+      flex: 1;
+    }
+
+    @media (max-width: 768px) {
+
+      .filter-group {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .page-header .title {
+        margin-bottom: 0;
+      }
+
+      .button.new-bug {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .bug-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.25rem;
+      }
+
+      .bug-icon {
+        margin-bottom: 0.5rem;
+      }
+
+      .bug-meta {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+
+      .bug-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+
+      .view-button {
+        margin-left: auto;
+      }
+    }
+  </style>
+</head>
+
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+  <%- include('partials/header', { user: user }) %>
+
+  <section class="section">
+    <div class="container">
+      <div class="page-header is-flex is-justify-content-space-between is-align-items-center mb-5">
+        <h1 class="title">Bug Reports</h1>
+        <% if (user) { %>
+        <a href="/submissions/create#bug" class="button new-bug">
+          <span class="icon">
+            <i class="fas fa-plus"></i>
+          </span>
+          <span>Create bug report</span>
+        </a>
+        <% } %>
+      </div>
+
+      <div class="filters">
+        <div class="filter-group">
+          <div class="select">
+            <select id="categoryFilter">
+              <option value="">All Categories</option>
+              <% categories.forEach(category => { %>
+              <option value="<%= category._id %>" <%= selectedCategory === category._id ? 'selected' : '' %>>
+                <%= category.name %>
+              </option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="select">
+            <select id="statusFilter">
+              <option value="">All Status</option>
+              <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+              <option value="investigating" <%= status === 'investigating' ? 'selected' : '' %>>Investigating</option>
+              <option value="resolved" <%= status === 'resolved' ? 'selected' : '' %>>Resolved</option>
+              <option value="rejected" <%= status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+            </select>
+          </div>
+
+          <div class="select">
+            <select id="sortFilter">
+              <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest First</option>
+              <option value="oldest" <%= sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <% submissions.forEach(submission => { %>
+      <div class="bug-card">
+        <div class="bug-icon">
+          <i class="fas fa-bug"></i>
+        </div>
+        <div class="bug-content">
+          <div class="bug-title"><%= submission.title %></div>
+          <div class="bug-meta">
+            <span>
+              <i class="fas fa-clock"></i>
+              <%= timeAgo(submission.createdAt) %> by <%= submission.username %>
+            </span>
+            <span class="category-tag"><%= submission.category.name %></span>
+            <span class="status-tag status-<%= submission.status %>">
+              <%= submission.status.charAt(0).toUpperCase() + submission.status.slice(1) %>
+            </span>
+          </div>
+        </div>
+        <div class="bug-actions">
+          <a href="/submissions/<%= submission.urlID %>" class="view-button">
+            <i class="fas fa-eye"></i>
+            <span>View</span>
+          </a>
+        </div>
+      </div>
+      <% }); %>
+
+      <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+        <a class="pagination-previous" <%= page > 1 ? `href="?page=${page-1}${queryString}"` : 'disabled' %>>Previous</a>
+        <a class="pagination-next" <%= page < totalPages ? `href="?page=${page+1}${queryString}"` : 'disabled' %>>Next</a>
+        <ul class="pagination-list">
+          <% for(let i = 1; i <= totalPages; i++) { %>
+          <li>
+            <a class="pagination-link <%= i === page ? 'is-current' : '' %>" href="?page=<%= i %><%= queryString %>" aria-label="Page <%= i %>" aria-current="<%= i === page ? 'page' : false %>">
+              <%= i %>
+            </a>
+          </li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+  </section>
+
+  <script>
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const categoryFilter = document.getElementById('categoryFilter');
+      const statusFilter = document.getElementById('statusFilter');
+      const sortFilter = document.getElementById('sortFilter');
+
+      const category = getQueryParam('category');
+      const status = getQueryParam('status');
+      const sort = getQueryParam('sort');
+
+      if (category) categoryFilter.value = category;
+      if (status) statusFilter.value = status;
+      if (sort) sortFilter.value = sort;
+    });
+
+    document.querySelectorAll('.filters select').forEach(select => {
+      select.addEventListener('change', () => {
+        const category = document.getElementById('categoryFilter').value;
+        const status = document.getElementById('statusFilter').value;
+        const sort = document.getElementById('sortFilter').value;
+
+        let url = '/bugs?';
+        if (category) url += `category=${category}&`;
+        if (status) url += `status=${status}&`;
+        if (sort) url += `sort=${sort}&`;
+
+        window.location.href = url;
+      });
+    });
+  </script>
+
+  <%- include('partials/footer') %>
+</body>
+
+</html>
